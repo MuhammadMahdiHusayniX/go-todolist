@@ -11,6 +11,14 @@
 <div class="container">
     <div class="jumbotron text-center text-success">
         <h1>Authenticated</h1>
+        <p>Bearer token below:</p>
+        <p>{{.tokenString}}</p>
+        <p>List of API route below</p>
+        <p>GET ALL TODO => METHOD: GET, ROUTE: http://127.0.0.1:3000/todo</P>
+        <p>CREATE TODO => METHOD: POST, ROUTE: http://127.0.0.1:3000/todo, JSON BODY: { "Task": "Optimize code", "CreatedBy": "Mahdi" }</P>
+        <p>MARK TODO AS COMPLETE => METHOD: GET, ROUTE: http://127.0.0.1:3000/todo/complete/:id</P>
+        <p>DELETE TODO => METHOD: DELETE, ROUTE: http://127.0.0.1:3000/todo/:id</P>
+
     </div>
 </div>
 </body>

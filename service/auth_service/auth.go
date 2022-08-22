@@ -3,6 +3,7 @@ package auth_service
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/MuhammadMahdiHusayniX/go-todolist/service/page_service"
 	"github.com/gin-contrib/sessions"
@@ -30,8 +31,11 @@ func Auth(c *gin.Context) {
 		return
 	}
 
+	tokenString := JWTAuthService().GenerateToken(user.Email, true)
+
 	c.HTML(http.StatusOK, "authenticated.tmpl", gin.H{
-		"user": user,
+		"user":        user,
+		"tokenString": tokenString,
 	})
 }
 
@@ -44,9 +48,16 @@ func Login(c *gin.Context) {
 
 func AuthorizeRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		v := session.Get("user-id")
-		if v == nil {
+		const BEARER_SCHEMA = "Bearer"
+		authHeader := c.GetHeader("Authorization")
+		tokenString := authHeader[len(BEARER_SCHEMA):]
+		token, err := JWTAuthService().ValidateToken(strings.TrimSpace(tokenString))
+		if err != nil {
+			log.Print(err)
+			c.Abort()
+		}
+
+		if !token.Valid {
 			page_service.ErrorPage(c, "Please login.")
 			c.Abort()
 		}
