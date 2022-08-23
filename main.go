@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
+	"io"
 	"log"
+	"os"
 
 	"github.com/MuhammadMahdiHusayniX/go-todolist/handlers"
 	"github.com/MuhammadMahdiHusayniX/go-todolist/models"
@@ -33,10 +36,24 @@ func main() {
 		Secure:   false,
 	})
 
-	gothic.Store = store
+	credsJson, jsonErr := os.Open("conf/creds.json")
+	if jsonErr != nil {
+		log.Fatal("unable to read credentials: ", jsonErr)
+	}
 
+	defer credsJson.Close()
+
+	byteValue, _ := io.ReadAll(credsJson)
+
+	var credentials models.Creds
+	unMarshalError := json.Unmarshal(byteValue, &credentials)
+	if unMarshalError != nil {
+		log.Fatal("Failed to decode json: ", unMarshalError)
+	}
+
+	gothic.Store = store
 	goth.UseProviders(
-		google.New("154301927301-uln6u2mc1ie0ojop9ig0mp0no3bcc776.apps.googleusercontent.com", "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", "http://127.0.0.1:3000/auth/google/callback"),
+		google.New(credentials.Cid, credentials.Csecret, credentials.Ccallback),
 	)
 
 	r.Use(gin.Logger())
